@@ -1,0 +1,192 @@
+{% extends "home.html" %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+
+{% block content %}
+
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
+    
+    
+   
+    <link href="{%static 'sysalerts/css/sysalerts.css'%}" rel="stylesheet" /> 
+   
+<style>
+  @media 
+	only screen and (max-width: 760px),
+	(min-device-width: 768px) and (max-device-width: 1024px)
+  {
+  td:nth-of-type(1):before { content: "Location"; }
+  td:nth-of-type(2):before { content: "Date Created"; }
+  td:nth-of-type(3):before { content: "Created By"; }
+  td:nth-of-type(4):before { content: "Date Completed"; }
+  td:nth-of-type(5):before { content: "Completed By"; }
+  td:nth-of-type(6):before { content: "Descripton"; }
+  td:nth-of-type(7):before { content: "Ticket ID"; }
+  }
+ 
+</style>
+
+<body class="sb-nav-fixed">
+   
+   
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid ">
+                   
+                   
+                        <h1 class="mt-4">Tickets</h1>
+                       
+                   
+                   
+                </div>
+                   
+                    
+                    <div class="row pb-2">
+                     
+                     
+
+                          <div class="col">
+                                                     
+                     
+                            <a href="{% url 'sysalerts:view_tickets' %}"  class="btn btn-outline-info btn-lg float-end m-1  position-relative " role="button"> Tickets  
+                              <span class="btn-circle bg-danger text-white ">
+                                  {{ticket_num}} 
+                              </span> 
+                            </a>
+                          
+
+                            <button class="btn btn-outline-success btn-lg align-self-end float-end  m-1 " i class="fas fa-plus" id="add-ticket"></i> Add Ticket </button>
+                            <button class="btn btn-outline-success btn-lg float-end  m-1 " i class="fas fa-plus" id="add-alert"></i> Add New Alert</button>
+                                                      
+                                                           
+                          </div>
+                          
+                         
+
+
+
+
+                    </div>
+
+              
+
+             
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <i class="fas fa-table me-1"></i>
+                           Active Alerts
+                           <a href="{% url 'sysalerts:alert_history' %}">
+                            <i class=" fas fa-history fa-lg fa-fw"></i></a>
+
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive "style="max-height: 500px;">
+                                <table  class="table"  >
+                                    <thead>
+                                        <tr class='max-width: 100%'>
+                                            <th>Location</th>
+                                            <th>Date Created</th>
+                                            <th>Created By</th>
+                                            <th>Date Completed</th>
+                                            <th>Completed By</th>                                                                                                                 
+                                            <th style="width: 50%;">Description</th>    
+                                            <th>Ticket ID</th>                               
+                                            <th style="width: 10%;"></th>
+                                                                                    
+                                        </tr>
+                                    </thead>
+                                
+                                    <tbody>
+                                    
+                                        {%for item in tks %}
+
+                                        <tr>
+                                            <td>{{item.location}} </td>                                           
+                                            <td>{{item.date_created}}</td>                                           
+                                            <td>{{item.created_by}}</td>
+                                            <td>{{item.date_completed}} </td>
+                                            <td>{{item.completed_by}}</td>                                                                                   
+                                            <td>{{item.description}}</td>
+                                            <td>{{item.id}}</td>
+                                            <td><a href="{% url 'sysalerts:edit_alert' item.id %}" class="btn text-secondary">
+                                                <i class="far fa-edit fa-lg fa-fw"></i></a>                                                                                                
+                                           
+
+                                          
+                                                <button type="submit" class="btn" data-bs-toggle="modal" data-bs-target="#mrkcomp{{item.id}}">
+                                                    <i class="far fa-trash-alt fa-lg text-danger fa-fw"></i>
+                                                </button>
+                                                  <!-- Modal -->
+                    
+                                                  {%if request.user.is_authenticated%}
+                                                  <div class="modal fade" id="mrkcomp{{item.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                      <div class="modal-content">
+                                                        <div class="modal-header">
+                                                          <h5 class="modal-title" id="exampleModalLabel">Confirm Complete</h5>
+                                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                          Are you sure you want to delete Alert ID {{item.id}}?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    
+                                                          <form action="{% url 'sysalerts:alt_complete' item.id %}" method="post" class="d-inline" >
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-primary">Delete</button>
+                                                          </form>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                    
+                                                  {%else%}
+                                                  <div class="modal fade" id="test{{item.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                      <div class="modal-content">
+                                                        <div class="modal-header">
+                                                          <h5 class="modal-title" id="exampleModalLabel">User Login Required</h5>
+                                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                         You must login to delete items!
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                          <a href="#"class="btn btn-primary active" role="button" aria-pressed="true">Login</a>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                  {%endif%}
+                                            </td>
+
+                                        </tr>
+                                        {%endfor%}    
+                                
+                                    </tbody>
+                                </table>
+                            <!-- </div> -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+    
+        </div>
+    </div>
+
+   
+ 
+    
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
+   
+    <script src="{%static 'sysalerts/js/sysalerts.js'%}"></script>
+
+    
+</body>
+</html>
+
+{% endblock %}
